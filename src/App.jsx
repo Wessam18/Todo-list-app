@@ -5,7 +5,10 @@ import Todo from "./components/Todo.jsx";
 import "./styles/style.css";
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const storedItems = JSON.parse(localStorage.getItem("todos"));
+    return storedItems ? storedItems : [];
+  });
 
   const completedTodos = todos.filter((todo) => todo.done).length;
   const totalTodos = todos.length;
