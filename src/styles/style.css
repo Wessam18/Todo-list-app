@@ -4,13 +4,15 @@ body {
 }
 
 .header {
-    background-color: #f7ca18;
+    background-color: rgb(217, 217, 217);
+    color: rgb(59, 113, 202, 1);
     text-align: center;
     font-weight: bold;
     height: 60px;
     padding: 20px;
     font-size: 3em;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.45);
+    text-decoration: underline;
 }
 
 
@@ -40,12 +42,19 @@ body {
     display: inline-block;
     border: none;
     border-radius: 4px;
-    background-color: #f7ca18;
+    background-color: rgb(59, 113, 202, 1);
     padding: 12px 20px;
     color: #ffffff;
     cursor: pointer;
     width: 100px;
     font-weight: bold;
+    margin-left: 10px;
+
+}
+
+.check-title {
+    display: flex;
+    justify-content: space-evenly;
 
 }
 .container {
@@ -56,10 +65,13 @@ body {
 .todo-list {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-    margin: 0 auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-top: 50px;
+    margin-bottom: 35px;
+    margin-right: 300px;
+    
+
 }
 
 .item {
@@ -74,22 +86,30 @@ body {
     font-size: 30px;
     padding: 20px;
     display: flex;
-    width: 100%;
+    width: 800px;
     justify-content: space-between;
 }
 
 .line {
     border: 1px solid #d5d2d2;
+    width: 850px;
 }
 
 .delete-btn {
     padding: 12px 20px;
     border: none;
-    background-color: #f7ca18;
-    color: white;
+    background-color: white;
+    color: rgb(220, 76, 100, 1);;
     margin-top: -5px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+.edit-btn {
+    background-color: white;
+    color: rgb(84, 180, 211, 1);
+    cursor: 'pointer';
+    padding-bottom: 15px;
 }
 
 .completed {
@@ -98,6 +118,7 @@ body {
 
 .footer {
     display: flex;
+    color: rgb(59, 113, 202, 1);
     justify-content: space-evenly;
     position: fixed;
     bottom: 0;
@@ -105,11 +126,27 @@ body {
     font-weight: bold;
     text-align: center;
     width: 100%;
-    background-color: #f7ca18;
+    background-color: rgb(217, 217, 217);
     padding: 10px;
 }
 
 .due-date {
     font-size: 20px;
     margin-left: 25px; /* Adjust spacing as desired */
+    display: flex;
+    justify-content: space-between;
+    width: 800px;
+
+}
+
+.created-date {
+    font-size: 0.875em;
+    color: rgb(79, 79, 79, 0.75);
+    margin-left: 10px;
+}
+
+.create-icon {
+    display: flex;
+    justify-content: space-around;
+
 }
