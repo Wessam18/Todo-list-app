@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashCan, faPen, faCircleInfo, faSquareCheck, faSquare } from '@fortawesome/free-solid-svg-icons';
+import TodoItem from "./TodoItem";
+import EditTodoModal from "./EditTodoModal";
 
-export default function Todo({ todos, setTodos }) {
+export default function TodoList() {
+    const [todos, setTodos] = useState(JSON.parse(localStorage.getItem("todos")) || []);
     const [todo, setTodo] = useState({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "" });
     const [editingTodo, setEditingTodo] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,7 +23,7 @@ export default function Todo({ todos, setTodos }) {
         e.preventDefault();
         const newTodo = {
             ...todo,
-            id: Date.now(), // Unique ID for each task
+            id: Date.now(),
             createdDate: formatDate(new Date())
         };
         setTodos([...todos, newTodo]);
@@ -35,9 +36,7 @@ export default function Todo({ todos, setTodos }) {
 
     function handleCheckboxClick(item) {
         const updatedTodos = todos.map((todo) =>
-            todo.id === item.id
-                ? { ...todo, done: !todo.done }
-                : todo
+            todo.id === item.id ? { ...todo, done: !todo.done } : todo
         );
         setTodos(updatedTodos);
     }
@@ -86,91 +85,24 @@ export default function Todo({ todos, setTodos }) {
                 </div>
             </form>
             <div className="todo-list">
-                {sortedTodos.map((item, idx) => (
-                    <div className="item" key={item.id}>
-                        <div className="item-name">
-                            <div className="check-title">
-                                <FontAwesomeIcon
-                                    icon={item.done ? faSquareCheck : faSquare}
-                                    onClick={() => handleCheckboxClick(item)}
-                                    className="checkbox-icon"
-                                    style={{
-                                        color: item.done ? 'rgb(59, 113, 202, 1)' : 'transparent',
-                                        cursor: 'pointer',
-                                        border: item.done ? 'none' : '1.5px solid rgb(59, 113, 202, 1)',
-                                        borderRadius: '3px',
-                                        marginRight: '15px'
-                                    }}
-                                />
-                                <span
-                                    className={item.done ? "completed" : ""}
-                                    onClick={() => handleCheckboxClick(item)}
-                                >
-                                    {item.name}
-                                </span>
-                            </div>
-                            <span>
-                                <FontAwesomeIcon
-                                    icon={faPen}
-                                    onClick={() => openEditModal(item)}
-                                    className="edit-btn"
-                                />
-                                <FontAwesomeIcon
-                                    icon={faTrashCan}
-                                    onClick={() => handleDelete(item)}
-                                    className="delete-btn"
-                                />
-                            </span>
-                        </div>
-                        <div className="due-date">
-                            <span>{`- Due date: ${item.dueDate}`}</span>
-                            <div className="create-icon">
-                                <FontAwesomeIcon
-                                    icon={faCircleInfo}
-                                    className="info-icon"
-                                    style={{ color: 'gray', cursor: 'pointer' }}
-                                    title={`Created on: ${item.createdDate}`}
-                                />
-                                <span className="created-date">{`${item.createdDate}`}</span>
-                            </div>
-                        </div>
-                        <hr className="line" />
-                    </div>
+                {sortedTodos.map((item) => (
+                    <TodoItem
+                        key={item.id}
+                        item={item}
+                        onDelete={handleDelete}
+                        onCheckboxClick={handleCheckboxClick}
+                        onEdit={openEditModal}
+                    />
                 ))}
             </div>
 
-            {/* Edit Modal */}
             {isEditModalOpen && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h3>Edit Task</h3>
-                        <form onSubmit={handleEditSubmit}>
-                            <input
-                                type="text"
-                                name="name"
-                                value={editingTodo.name}
-                                onChange={handleEditChange}
-                                placeholder="Edit Task Name"
-                                className="input-edit"
-                            />
-                            <input
-                                type="date"
-                                name="dueDate"
-                                value={editingTodo.dueDate}
-                                onChange={handleEditChange}
-                                className="input-edit"
-                            />
-                            <button type="submit" className="save-btn">Save</button>
-                            <button
-                                type="button"
-                                onClick={() => setIsEditModalOpen(false)}
-                                className="cancel-btn"
-                            >
-                                Cancel
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                <EditTodoModal
+                    editingTodo={editingTodo}
+                    handleEditChange={handleEditChange}
+                    handleEditSubmit={handleEditSubmit}
+                    closeModal={() => setIsEditModalOpen(false)}
+                />
             )}
         </>
     );
