@@ -1,36 +1,35 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faPen, faCircleInfo, faSquareCheck, faSquare } from '@fortawesome/free-solid-svg-icons';
 
-export default function TodoItem({ item, onDelete, onCheckboxClick, onEdit, advanceStatus }) {
+export default function TodoItem({ item, onDelete, onEdit, advanceStatus, moveToArchive }) {
   return (
     <div className="item">
       <div className="item-name">
         <div className="check-title">
-          <FontAwesomeIcon
-            icon={item.done ? faSquareCheck : faSquare}
-            onClick={() => onCheckboxClick(item)}
-            className="checkbox-icon"
-            style={{
-              color: item.done ? 'rgb(59, 113, 202, 1)' : 'transparent',
-              cursor: 'pointer',
-              border: item.done ? 'none' : '1.5px solid rgb(59, 113, 202, 1)',
-              borderRadius: '3px',
-              marginRight: '15px'
-            }}
-          />
-          <span
-            className={item.done ? "completed" : ""}
-            onClick={() => onCheckboxClick(item)}
-          >
-            {item.name}
-          </span>
+          {/* Only render checkbox and "completed" class for tasks in "done" status */}
+          {item.status === "done" && (
+            <FontAwesomeIcon
+              icon={item.done ? faSquareCheck : faSquare}
+              className="checkbox-icon"
+              style={{
+                color: item.done ? 'rgb(59, 113, 202, 1)' : 'transparent',
+                cursor: 'pointer',
+                border: item.done ? 'none' : '1.5px solid rgb(59, 113, 202, 1)',
+                borderRadius: '3px',
+                marginRight: '15px'
+              }}
+            />
+          )}
+          <span className={item.status === "done" && item.done ? "completed" : ""}>{item.name}</span>
         </div>
         <span>
-          <FontAwesomeIcon
-            icon={faPen}
-            onClick={() => onEdit(item)}
-            className="edit-btn"
-          />
+          {item.status !== "done" && (
+            <FontAwesomeIcon
+              icon={faPen}
+              onClick={() => onEdit(item)}
+              className="edit-btn"
+            />
+          )}
           <FontAwesomeIcon
             icon={faTrashCan}
             onClick={() => onDelete(item)}
@@ -50,12 +49,18 @@ export default function TodoItem({ item, onDelete, onCheckboxClick, onEdit, adva
           <span className="created-date">{`${item.createdDate}`}</span>
         </div>
       </div>
-      {/* Conditional button rendering based on task status */}
-      {item.status !== "done" && (
-        <button onClick={() => advanceStatus(item)} className="status-btn">
-          {item.status === "todo" ? "Move to Progress" : "Move to Done"}
-        </button>
+
+      {/* Conditionally render buttons based on task status */}
+      {item.status === "todo" && (
+        <button onClick={() => advanceStatus(item)} className="move-btn">Move to In Progress</button>
       )}
+      {item.status === "in-progress" && (
+        <button onClick={() => advanceStatus(item)} className="move-btn">Move to Done</button>
+      )}
+      {item.status === "done" && (
+        <button onClick={() => moveToArchive(item)} className="archive-btn">Move to Archive</button>
+      )}
+      
       <hr className="line" />
     </div>
   );

@@ -1,18 +1,23 @@
-// TodoList.js
 import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
 import EditTodoModal from "./EditTodoModal";
+import Archive from "./Archive";
 
 export default function TodoList({ todos, setTodos }) {
   const [todo, setTodo] = useState({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "", status: "todo" });
   const [editingTodo, setEditingTodo] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [archive, setArchive] = useState(() => JSON.parse(localStorage.getItem("archive")) || []); // Load archive from localStorage
 
   const formatDate = (date) => `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
 
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
+
+  useEffect(() => {
+    localStorage.setItem("archive", JSON.stringify(archive));
+  }, [archive]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -27,13 +32,14 @@ export default function TodoList({ todos, setTodos }) {
   }
 
   function handleDelete(item) {
+    setArchive([...archive, item]); // Move deleted task to archive
     setTodos(todos.filter((todo) => todo.id !== item.id));
   }
 
   function handleCheckboxClick(item) {
-    setTodos(todos.map((todo) =>
-      todo.id === item.id ? { ...todo, done: !todo.done } : todo
-    ));
+    if (item.status !== "done") {
+      setTodos(todos.map((todo) => todo.id === item.id ? { ...todo, done: !todo.done } : todo));
+    }
   }
 
   function openEditModal(item) {
@@ -48,9 +54,7 @@ export default function TodoList({ todos, setTodos }) {
 
   function handleEditSubmit(e) {
     e.preventDefault();
-    setTodos(todos.map((todo) =>
-      todo.id === editingTodo.id ? { ...editingTodo } : todo
-    ));
+    setTodos(todos.map((todo) => todo.id === editingTodo.id ? { ...editingTodo } : todo));
     setIsEditModalOpen(false);
     setEditingTodo(null);
   }
@@ -58,9 +62,13 @@ export default function TodoList({ todos, setTodos }) {
   // Function to change task status
   function advanceStatus(item) {
     const newStatus = item.status === "todo" ? "in-progress" : item.status === "in-progress" ? "done" : "todo";
-    setTodos(todos.map((todo) =>
-      todo.id === item.id ? { ...todo, status: newStatus } : todo
-    ));
+    setTodos(todos.map((todo) => todo.id === item.id ? { ...todo, status: newStatus, done: newStatus === "done" } : todo));
+  }
+
+  // Function to move a task from "Done" to "Archive"
+  function moveToArchive(item) {
+    setArchive([...archive, item]);
+    setTodos(todos.filter((todo) => todo.id !== item.id));
   }
 
   const columns = {
@@ -91,6 +99,7 @@ export default function TodoList({ todos, setTodos }) {
                 onCheckboxClick={handleCheckboxClick}
                 onEdit={openEditModal}
                 advanceStatus={advanceStatus}
+                moveToArchive={item.status === "done" ? moveToArchive : null} // Only pass moveToArchive for "Done" items
               />
             ))}
           </div>
@@ -105,6 +114,8 @@ export default function TodoList({ todos, setTodos }) {
           closeModal={() => setIsEditModalOpen(false)}
         />
       )}
+
+      <Archive archive={archive} />
     </>
   );
 }
