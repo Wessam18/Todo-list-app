@@ -1,109 +1,110 @@
+// TodoList.js
 import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
 import EditTodoModal from "./EditTodoModal";
 
-export default function TodoList() {
-    const [todos, setTodos] = useState(JSON.parse(localStorage.getItem("todos")) || []);
-    const [todo, setTodo] = useState({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "" });
-    const [editingTodo, setEditingTodo] = useState(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+export default function TodoList({ todos, setTodos }) {
+  const [todo, setTodo] = useState({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "", status: "todo" });
+  const [editingTodo, setEditingTodo] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const formatDate = (date) => {
-        const day = date.getDate();
-        const month = date.toLocaleString('default', { month: 'short' });
-        const year = date.getFullYear();
-        return `${day} ${month} ${year}`;
+  const formatDate = (date) => `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const newTodo = {
+      ...todo,
+      id: Date.now(),
+      createdDate: formatDate(new Date()),
+      status: "todo"
     };
+    setTodos([...todos, newTodo]);
+    setTodo({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "", status: "todo" });
+  }
 
-    useEffect(() => {
-        localStorage.setItem("todos", JSON.stringify(todos));
-    }, [todos]);
+  function handleDelete(item) {
+    setTodos(todos.filter((todo) => todo.id !== item.id));
+  }
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        const newTodo = {
-            ...todo,
-            id: Date.now(),
-            createdDate: formatDate(new Date())
-        };
-        setTodos([...todos, newTodo]);
-        setTodo({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "" });
-    }
+  function handleCheckboxClick(item) {
+    setTodos(todos.map((todo) =>
+      todo.id === item.id ? { ...todo, done: !todo.done } : todo
+    ));
+  }
 
-    function handleDelete(item) {
-        setTodos(todos.filter((todo) => todo.id !== item.id));
-    }
+  function openEditModal(item) {
+    setEditingTodo({ ...item });
+    setIsEditModalOpen(true);
+  }
 
-    function handleCheckboxClick(item) {
-        const updatedTodos = todos.map((todo) =>
-            todo.id === item.id ? { ...todo, done: !todo.done } : todo
-        );
-        setTodos(updatedTodos);
-    }
+  function handleEditChange(e) {
+    const { name, value } = e.target;
+    setEditingTodo((prev) => ({ ...prev, [name]: value }));
+  }
 
-    function openEditModal(item) {
-        setEditingTodo({ ...item });
-        setIsEditModalOpen(true);
-    }
+  function handleEditSubmit(e) {
+    e.preventDefault();
+    setTodos(todos.map((todo) =>
+      todo.id === editingTodo.id ? { ...editingTodo } : todo
+    ));
+    setIsEditModalOpen(false);
+    setEditingTodo(null);
+  }
 
-    function handleEditChange(e) {
-        const { name, value } = e.target;
-        setEditingTodo((prev) => ({ ...prev, [name]: value }));
-    }
+  // Function to change task status
+  function advanceStatus(item) {
+    const newStatus = item.status === "todo" ? "in-progress" : item.status === "in-progress" ? "done" : "todo";
+    setTodos(todos.map((todo) =>
+      todo.id === item.id ? { ...todo, status: newStatus } : todo
+    ));
+  }
 
-    function handleEditSubmit(e) {
-        e.preventDefault();
-        const updatedTodos = todos.map((todo) =>
-            todo.id === editingTodo.id ? { ...editingTodo } : todo
-        );
-        setTodos(updatedTodos);
-        setIsEditModalOpen(false);
-        setEditingTodo(null);
-    }
+  const columns = {
+    "To Do": todos.filter((todo) => todo.status === "todo"),
+    "In Progress": todos.filter((todo) => todo.status === "in-progress"),
+    "Done": todos.filter((todo) => todo.status === "done")
+  };
 
-    const sortedTodos = todos.slice().sort((a, b) => Number(a.done) - Number(b.done));
+  return (
+    <>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="container">
+          <input className="input-todo" onChange={(e) => setTodo({ ...todo, name: e.target.value })} value={todo.name} type="text" placeholder="Enter Todo Item..." />
+          <input className="input-todo" onChange={(e) => setTodo({ ...todo, dueDate: e.target.value })} value={todo.dueDate} type="date" placeholder="Due Date..." />
+          <button className="add-btn" type="submit">Add</button>
+        </div>
+      </form>
 
-    return (
-        <>
-            <form className="form" onSubmit={handleSubmit}>
-                <div className="container">
-                    <input
-                        className="input-todo"
-                        onChange={(e) => setTodo({ ...todo, name: e.target.value })}
-                        value={todo.name}
-                        type="text"
-                        placeholder="Enter Todo Item..."
-                    />
-                    <input
-                        className="input-todo"
-                        onChange={(e) => setTodo({ ...todo, dueDate: e.target.value })}
-                        value={todo.dueDate}
-                        type="date"
-                        placeholder="Due Date..."
-                    />
-                    <button className="add-btn" type="submit">Add</button>
-                </div>
-            </form>
-            <div className="todo-list">
-                {sortedTodos.map((item) => (
-                    <TodoItem
-                        key={item.id}
-                        item={item}
-                        onDelete={handleDelete}
-                        onCheckboxClick={handleCheckboxClick}
-                        onEdit={openEditModal}
-                    />
-                ))}
-            </div>
+      <div className="kanban-board">
+        {Object.keys(columns).map((column) => (
+          <div key={column} className="kanban-column">
+            <h3>{column}</h3>
+            {columns[column].map((item) => (
+              <TodoItem
+                key={item.id}
+                item={item}
+                onDelete={handleDelete}
+                onCheckboxClick={handleCheckboxClick}
+                onEdit={openEditModal}
+                advanceStatus={advanceStatus}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
 
-            {isEditModalOpen && (
-                <EditTodoModal
-                    editingTodo={editingTodo}
-                    handleEditChange={handleEditChange}
-                    handleEditSubmit={handleEditSubmit}
-                    closeModal={() => setIsEditModalOpen(false)}
-                />
-            )}
-        </>
-    );
+      {isEditModalOpen && (
+        <EditTodoModal
+          editingTodo={editingTodo}
+          handleEditChange={handleEditChange}
+          handleEditSubmit={handleEditSubmit}
+          closeModal={() => setIsEditModalOpen(false)}
+        />
+      )}
+    </>
+  );
 }
