@@ -114,8 +114,6 @@ export default function TodoList({ todos, setTodos }) {
           closeModal={() => setIsEditModalOpen(false)}
         />
       )}
-
-      <Archive archive={archive} />
     </>
   );
 }
