@@ -1,12 +1,10 @@
 import "../styles/style.css";
 
-
 export default function Archive({ archive, setArchive }) {
-  // Function to handle delete from archive
   const handleDeleteFromArchive = (id) => {
     const updatedArchive = archive.filter((item) => item.id !== id);
     setArchive(updatedArchive);
-    localStorage.setItem("archive", JSON.stringify(updatedArchive)); // Update localStorage
+    localStorage.setItem("archive", JSON.stringify(updatedArchive));
   };
 
   return (
@@ -17,7 +15,7 @@ export default function Archive({ archive, setArchive }) {
           <div key={item.id} className="archived-item card">
             <div className="card-content">
               <h3>{item.name}</h3>
-              <p className="archived-status">Status: {item.status}</p>
+              <p className="archived-status">State when archived: {item.status}</p>
               <p className="archived-date">Archived on: {item.createdDate}</p>
               <button
                 className="delete-archive-btn"

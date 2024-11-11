@@ -291,7 +291,7 @@ body {
 
 .navbar {
     display: flex;
-    gap: 40rem;
+    gap: 1rem;
     background-color: #f0f0f0;
     padding: 1rem;
     justify-content: center;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Footer from "./components/footer.jsx"
+import Footer from "./components/footer.jsx";
 import Header from "./components/header.jsx";
 import TodoList from "./components/Todo.jsx";
 import Archive from "./components/Archive.jsx";
@@ -11,8 +11,14 @@ function App() {
     const storedItems = JSON.parse(localStorage.getItem("todos"));
     return storedItems ? storedItems : [];
   });
-  const [view, setView] = useState("home"); // Track current view
+  const [archive, setArchive] = useState(() => {
+    const storedArchive = JSON.parse(localStorage.getItem("archive"));
+    return storedArchive ? storedArchive : [];
+  });
+  const [view, setView] = useState("home");
   const completedTodos = todos.filter((todo) => todo.done).length;
+  const inProgressCount = todos.filter((todo) => todo.status === "in-progress").length;
+  const todosCount = todos.filter((todo) => todo.status === "todo").length;
   const totalTodos = todos.length;
 
   return (
@@ -20,11 +26,11 @@ function App() {
       <Header />
       <Navbar setView={setView} />
       {view === "home" ? (
-        <TodoList todos={todos} setTodos={setTodos} />
+        <TodoList todos={todos} setTodos={setTodos} archive={archive} setArchive={setArchive} />
       ) : (
-        <Archive archive={JSON.parse(localStorage.getItem("archive")) || []} />
+        <Archive archive={archive} setArchive={setArchive} />
       )}
-      <Footer completedTodos={completedTodos} totalTodos={totalTodos} />
+      <Footer completedTodos={completedTodos} totalTodos={totalTodos} inProgressCount={inProgressCount} todosCount={todosCount} />
     </>
   );
 }

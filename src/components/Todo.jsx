@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
 import EditTodoModal from "./EditTodoModal";
-import Archive from "./Archive";
 
-export default function TodoList({ todos, setTodos }) {
+export default function TodoList({ todos, setTodos, archive, setArchive }) {
   const [todo, setTodo] = useState({ id: Date.now(), name: "", done: false, dueDate: "", createdDate: "", status: "todo" });
   const [editingTodo, setEditingTodo] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [archive, setArchive] = useState(() => JSON.parse(localStorage.getItem("archive")) || []); // Load archive from localStorage
 
   const formatDate = (date) => `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
 
@@ -32,7 +30,7 @@ export default function TodoList({ todos, setTodos }) {
   }
 
   function handleDelete(item) {
-    setArchive([...archive, item]); // Move deleted task to archive
+    setArchive([...archive, item]);
     setTodos(todos.filter((todo) => todo.id !== item.id));
   }
 
@@ -59,13 +57,11 @@ export default function TodoList({ todos, setTodos }) {
     setEditingTodo(null);
   }
 
-  // Function to change task status
   function advanceStatus(item) {
     const newStatus = item.status === "todo" ? "in-progress" : item.status === "in-progress" ? "done" : "todo";
     setTodos(todos.map((todo) => todo.id === item.id ? { ...todo, status: newStatus, done: newStatus === "done" } : todo));
   }
 
-  // Function to move a task from "Done" to "Archive"
   function moveToArchive(item) {
     setArchive([...archive, item]);
     setTodos(todos.filter((todo) => todo.id !== item.id));
@@ -99,7 +95,7 @@ export default function TodoList({ todos, setTodos }) {
                 onCheckboxClick={handleCheckboxClick}
                 onEdit={openEditModal}
                 advanceStatus={advanceStatus}
-                moveToArchive={item.status === "done" ? moveToArchive : null} // Only pass moveToArchive for "Done" items
+                moveToArchive={item.status === "done" ? moveToArchive : null}
               />
             ))}
           </div>
